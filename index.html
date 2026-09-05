@@ -1,369 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Win Go - Color Prediction Game</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f172a; color: #fff; display: flex; justify-content: center; min-height: 100vh; }
-        
-        .app-container { width: 100%; max-width: 480px; background: #1e293b; min-height: 100vh; padding: 15px; display: flex; flex-direction: column; position: relative; }
-        
-        /* AUTH SCREEN */
-        .auth-container { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; gap: 15px; }
-        .auth-box { background: #0f172a; border: 1px solid #334155; padding: 20px; border-radius: 12px; }
-        .auth-box h2 { text-align: center; margin-bottom: 15px; color: #3b82f6; }
-        .auth-input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; font-size: 14px; }
-        .auth-btn { width: 100%; padding: 12px; background: #22c55e; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
-        
-        /* HEADER & ADMIN BTN */
-        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .admin-nav-btn { background: #7c4dff; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visiting Card Generator</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+    body { background-color: #0f172a; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .container { background: #1e293b; width: 100%; max-width: 420px; padding: 25px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    h2 { text-align: center; margin-bottom: 20px; color: #38bdf8; font-size: 22px; }
+    
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 6px; font-size: 14px; color: #94a3b8; }
+    input { width: 100%; padding: 12px; border: 1px solid #334155; background: #0f172a; color: #fff; border-radius: 8px; font-size: 15px; outline: none; }
+    input:focus { border-color: #38bdf8; }
+    
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; background: #2563eb; color: white; margin-top: 10px; transition: 0.3s; }
+    .btn:hover { background: #1d4ed8; }
+    .btn-danger { background: #dc2626; margin-top: 15px; }
+    .btn-danger:hover { background: #b91c1c; }
 
-        /* DASHBOARD SCREENS */
-        #game-screen, #admin-screen { display: none; }
-        
-        /* WALLET & REFERRAL CARD */
-        .wallet-card { background: linear-gradient(135deg, #3b82f6, #1d4ed8); padding: 18px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        .wallet-title { font-size: 12px; color: #93c5fd; text-transform: uppercase; display: flex; justify-content: space-between; }
-        .balance-amount { font-size: 26px; font-weight: bold; margin: 6px 0; }
-        .ref-box { background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); padding: 8px; border-radius: 8px; margin-top: 10px; display: flex; gap: 5px; }
-        .ref-input { width: 100%; background: transparent; border: none; color: #fff; font-size: 11px; }
-        .ref-copy-btn { background: #ffab00; color: #000; border: none; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; cursor: pointer; }
-
-        /* TIMER BOX */
-        .timer-card { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .countdown { font-size: 22px; font-weight: bold; color: #ef4444; background: #1e293b; padding: 4px 10px; border-radius: 8px; border: 1px solid #334155; }
-
-        /* COLOR BET BUTTONS */
-        .color-btns { display: flex; gap: 8px; margin-bottom: 15px; }
-        .c-btn { flex: 1; padding: 12px 0; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; color: white; cursor: pointer; }
-        .btn-green { background: #16a34a; } .btn-violet { background: #9333ea; } .btn-red { background: #dc2626; }
-
-        /* NUMBERS GRID */
-        .number-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 15px; }
-        .num-btn { padding: 12px 0; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; color: white; cursor: pointer; background: #334155; }
-        .num-0 { background: linear-gradient(135deg, #dc2626 50%, #9333ea 50%); }
-        .num-5 { background: linear-gradient(135deg, #16a34a 50%, #9333ea 50%); }
-
-        /* HISTORY TABLE */
-        .history-table { width: 100%; border-collapse: collapse; background: #0f172a; border-radius: 8px; overflow: hidden; font-size: 12px; }
-        .history-table th, .history-table td { padding: 8px; text-align: center; border-bottom: 1px solid #1e293b; }
-        .history-table th { background: #1e293b; color: #94a3b8; }
-        .dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; }
-
-        /* ADMIN PANEL STYLING */
-        .admin-box { background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .admin-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
-        .admin-table th, .admin-table td { padding: 8px 4px; text-align: left; border-bottom: 1px solid #334155; }
-        .admin-table th { color: #ffab00; }
-        .edit-btn { background: #3b82f6; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
-
-        /* MODAL POPUPS */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; justify-content: center; align-items: center; }
-        .modal-box { background: #1e293b; width: 85%; max-width: 350px; border-radius: 12px; padding: 20px; text-align: center; border: 1px solid #334155; }
-    </style>
+    /* Visiting Card Style */
+    .card-preview { display: none; margin-top: 30px; background: linear-gradient(135deg, #1e3c72, #2a5298); padding: 20px; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.3); position: relative; overflow: hidden; }
+    .card-preview::after { content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; }
+    .card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+    .card-avatar { width: 50px; height: 50px; background: #ff7043; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: #fff; }
+    .card-info h3 { font-size: 18px; color: #fff; text-transform: capitalize; }
+    .card-info p { font-size: 13px; color: #cbd5e1; }
+    .card-body { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 12px; }
+    .card-detail { font-size: 14px; margin-top: 6px; display: flex; align-items: center; gap: 8px; }
+  </style>
 </head>
 <body>
 
-    <div class="app-container">
-        
-        <!-- LOGIN / SIGNUP SCREEN -->
-        <div id="auth-screen" class="auth-container">
-            <div class="auth-box">
-                <h2 id="auth-title">Member Login</h2>
-                <input type="text" id="auth-userid" class="auth-input" placeholder="User ID">
-                <input type="password" id="auth-password" class="auth-input" placeholder="Password">
-                <button class="auth-btn" id="main-auth-btn" onclick="handleAuth()">Login</button>
-                <p style="font-size:12px; text-align:center; margin-top:15px; cursor:pointer; color:#94a3b8;" onclick="toggleAuthMode()" id="toggle-auth-text">New Member? Register Here</p>
-                <div style="text-align:center; margin-top:20px;">
-                    <button class="admin-nav-btn" onclick="showAdminLoginModal()"><i class="fas fa-user-shield"></i> Admin Access</button>
-                </div>
-            </div>
-        </div>
+<div class="container">
+  <h2>Visiting Card बनाएं</h2>
+  
+  <div class="form-group">
+    <label>आपका नाम (Full Name)</label>
+    <input type="text" id="fullName" placeholder="अपना नाम दर्ज करें">
+  </div>
+  
+  <div class="form-group">
+    <label>फोन नंबर (Phone Number)</label>
+    <input type="tel" id="phoneNumber" placeholder="फ़ोन नंबर दर्ज करें">
+  </div>
+  
+  <button class="btn" onclick="generateCard()">कार्ड बनाएं & सेव करें</button>
 
-        <!-- GAME DASHBOARD -->
-        <div id="game-screen">
-            <div class="header-bar">
-                <div style="font-weight:bold; color:#ffab00;">WIN GO GAME</div>
-                <button class="admin-nav-btn" onclick="showAdminLoginModal()"><i class="fas fa-user-shield"></i> Admin</button>
-            </div>
-
-            <!-- WALLET & REFERRAL CARD -->
-            <div class="wallet-card">
-                <div class="wallet-title">
-                    <span>Available Balance</span>
-                    <span id="user-display-id" style="font-weight:bold; color:#fff;"></span>
-                </div>
-                <div class="balance-amount">₹ <span id="user-balance">1000.00</span></div>
-                
-                <div class="ref-box">
-                    <input type="text" id="myRefLink" class="ref-input" readonly>
-                    <button class="ref-copy-btn" onclick="copyRef()">Copy Link</button>
-                </div>
-
-                <div style="display:flex; gap:8px; margin-top:12px;">
-                    <button style="flex:1; padding:8px; background:#22c55e; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; font-size:12px;" onclick="alert('UPI Deposit: mohitcsc@jio')">Deposit</button>
-                    <button style="flex:1; padding:8px; background:#e11d48; border:none; border-radius:6px; color:white; font-weight:bold; cursor:pointer; font-size:12px;" onclick="alert('Min Withdraw ₹110')">Withdraw</button>
-                    <button style="padding:8px 12px; background:#64748b; border:none; border-radius:6px; color:white; cursor:pointer; font-size:12px;" onclick="logout()">Logout</button>
-                </div>
-            </div>
-
-            <!-- TIMER -->
-            <div class="timer-card">
-                <div>
-                    <div style="font-size:11px; color:#94a3b8;">Win Go 30s</div>
-                    <div id="period-id" style="font-size:15px; font-weight:bold; color:#f59e0b;">20260905001</div>
-                </div>
-                <div class="countdown" id="timer">00:30</div>
-            </div>
-
-            <!-- BET BUTTONS -->
-            <div class="color-btns">
-                <button class="c-btn btn-green" onclick="openBetModal('Green')">Green</button>
-                <button class="c-btn btn-violet" onclick="openBetModal('Violet')">Violet</button>
-                <button class="c-btn btn-red" onclick="openBetModal('Red')">Red</button>
-            </div>
-
-            <!-- NUMBERS -->
-            <div class="number-grid">
-                <button class="num-btn num-0" onclick="openBetModal('0')">0</button>
-                <button class="num-btn" style="background:#16a34a;" onclick="openBetModal('1')">1</button>
-                <button class="num-btn" style="background:#dc2626;" onclick="openBetModal('2')">2</button>
-                <button class="num-btn" style="background:#16a34a;" onclick="openBetModal('3')">3</button>
-                <button class="num-btn" style="background:#dc2626;" onclick="openBetModal('4')">4</button>
-                <button class="num-btn num-5" onclick="openBetModal('5')">5</button>
-                <button class="num-btn" style="background:#dc2626;" onclick="openBetModal('6')">6</button>
-                <button class="num-btn" style="background:#16a34a;" onclick="openBetModal('7')">7</button>
-                <button class="num-btn" style="background:#dc2626;" onclick="openBetModal('8')">8</button>
-                <button class="num-btn" style="background:#16a34a;" onclick="openBetModal('9')">9</button>
-            </div>
-
-            <!-- HISTORY -->
-            <div style="font-size:13px; font-weight:bold; color:#94a3b8; margin-bottom:8px;">Game History</div>
-            <table class="history-table">
-                <thead><tr><th>Period</th><th>Number</th><th>Result</th></tr></thead>
-                <tbody id="history-body"></tbody>
-            </table>
-        </div>
-
-        <!-- ADMIN CONTROL PANEL -->
-        <div id="admin-screen">
-            <div class="header-bar">
-                <h3 style="color:#ffab00;">Admin Control Panel</h3>
-                <button class="admin-nav-btn" style="background:#e11d48;" onclick="exitAdmin()">Exit Admin</button>
-            </div>
-
-            <div class="admin-box">
-                <div style="font-size:12px; color:#aaa; margin-bottom:10px;">Registered Members & Balance Manager</div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>User ID</th>
-                            <th>Password</th>
-                            <th>Balance</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-users-list"></tbody>
-                </table>
-            </div>
-        </div>
-
+  <!-- Generated Visiting Card -->
+  <div id="visitingCard" class="card-preview">
+    <div class="card-header">
+      <div class="card-avatar" id="cardAvatar">U</div>
+      <div class="card-info">
+        <h3 id="cardName">User Name</h3>
+        <p>Verified Member</p>
+      </div>
     </div>
-
-    <!-- ADMIN LOGIN MODAL -->
-    <div class="modal" id="admin-modal">
-        <div class="modal-box">
-            <h3 style="margin-bottom:12px; color:#ffab00;">Admin Login</h3>
-            <input type="text" id="admin-user" class="auth-input" placeholder="Admin Username">
-            <input type="password" id="admin-pass" class="auth-input" placeholder="Admin Password">
-            <button class="auth-btn" onclick="verifyAdmin()">Login Panel</button>
-            <button style="background:none; border:none; color:#94a3b8; margin-top:10px; cursor:pointer;" onclick="closeAdminModal()">Cancel</button>
-        </div>
+    <div class="card-body">
+      <div class="card-detail">📞 <span id="cardPhone">+91 0000000000</span></div>
     </div>
+  </div>
 
-    <!-- BETTING MODAL -->
-    <div class="modal" id="bet-modal">
-        <div class="modal-box">
-            <div style="font-size: 16px; margin-bottom: 12px;">Select <span id="selected-selection" style="color:#3b82f6;"></span></div>
-            <div style="display:flex; gap:5px; justify-content:center; margin:12px 0;">
-                <button class="auth-btn" style="padding:6px; background:#334155;" onclick="setAmt(10)">₹10</button>
-                <button class="auth-btn" style="padding:6px; background:#334155;" onclick="setAmt(100)">₹100</button>
-                <button class="auth-btn" style="padding:6px; background:#334155;" onclick="setAmt(500)">₹500</button>
-            </div>
-            <button class="auth-btn" onclick="confirmBet()">Confirm Bet</button>
-            <button style="background:none; border:none; color:#94a3b8; margin-top:10px; cursor:pointer;" onclick="closeModal('bet-modal')">Cancel</button>
-        </div>
-    </div>
+  <button id="deleteBtn" class="btn btn-danger" style="display:none;" onclick="clearCard()">कार्ड डिलीट करें</button>
+</div>
 
-    <script>
-        let isRegisterMode = false;
-        let currentUser = null;
-        let selectedAmt = 10;
-        let currentBet = null;
+<script>
+  // पेज लोड होने पर सेव किया हुआ डेटा ऑटोमैटिक दिखाएगा
+  window.onload = function() {
+    const savedData = JSON.parse(localStorage.getItem('userVisitingCard'));
+    if(savedData) {
+      renderCard(savedData.name, savedData.phone);
+    }
+  };
 
-        let users = JSON.parse(localStorage.getItem("game_users")) || {
-            "demo": { password: "123", balance: 1000.00 }
-        };
-        let gameHistory = JSON.parse(localStorage.getItem("game_history")) || [];
-        let periodNumber = parseInt(localStorage.getItem("period_id")) || 20260905001;
-        let timeLeft = 30;
+  function generateCard() {
+    const name = document.getElementById('fullName').value.trim();
+    const phone = document.getElementById('phoneNumber').value.trim();
 
-        window.onload = function() {
-            if(window.location.hash === "#admin") showAdminLoginModal();
-            let logged = localStorage.getItem("current_logged_user");
-            if (logged && users[logged]) {
-                currentUser = logged;
-                showGameScreen();
-            }
-            renderHistory();
-        };
+    if(!name || !phone) {
+      alert('कृपया नाम और फ़ोन नंबर दोनों भरें!');
+      return;
+    }
 
-        function toggleAuthMode() {
-            isRegisterMode = !isRegisterMode;
-            document.getElementById("auth-title").innerText = isRegisterMode ? "Register ID" : "Member Login";
-            document.getElementById("main-auth-btn").innerText = isRegisterMode ? "Register" : "Login";
-            document.getElementById("toggle-auth-text").innerText = isRegisterMode ? "Already have an ID? Login" : "New Member? Register Here";
-        }
+    // LocalStorage में डेटा सेव करना
+    const userData = { name: name, phone: phone };
+    localStorage.setItem('userVisitingCard', JSON.stringify(userData));
 
-        function handleAuth() {
-            let u = document.getElementById("auth-userid").value.trim();
-            let p = document.getElementById("auth-password").value.trim();
-            if (!u || !p) return alert("User ID aur Password enter karein!");
+    renderCard(name, phone);
+  }
 
-            if (isRegisterMode) {
-                if (users[u]) return alert("Yeh User ID pehle se registered hai!");
-                users[u] = { password: p, balance: 1000.00 };
-                localStorage.setItem("game_users", JSON.stringify(users));
-                alert("ID Ban Gayi! Ab Login karein.");
-                toggleAuthMode();
-            } else {
-                if (!users[u] || users[u].password !== p) return alert("Galat ID ya Password!");
-                currentUser = u;
-                localStorage.setItem("current_logged_user", currentUser);
-                showGameScreen();
-            }
-        }
+  function renderCard(name, phone) {
+    document.getElementById('cardName').innerText = name;
+    document.getElementById('cardPhone').innerText = phone;
+    document.getElementById('cardAvatar').innerText = name.charAt(0).toUpperCase();
+    
+    document.getElementById('visitingCard').style.display = 'block';
+    document.getElementById('deleteBtn').style.display = 'block';
+  }
 
-        function showGameScreen() {
-            document.getElementById("auth-screen").style.display = "none";
-            document.getElementById("admin-screen").style.display = "none";
-            document.getElementById("game-screen").style.display = "block";
-            document.getElementById("user-display-id").innerText = currentUser;
-            document.getElementById("user-balance").innerText = users[currentUser].balance.toFixed(2);
-            document.getElementById("myRefLink").value = window.location.origin + window.location.pathname + "?ref=" + currentUser;
-            document.getElementById("period-id").innerText = periodNumber;
-        }
+  function clearCard() {
+    localStorage.removeItem('userVisitingCard');
+    document.getElementById('visitingCard').style.display = 'none';
+    document.getElementById('deleteBtn').style.display = 'none';
+    document.getElementById('fullName').value = '';
+    document.getElementById('phoneNumber').value = '';
+  }
+</script>
 
-        function copyRef() {
-            let copyText = document.getElementById("myRefLink");
-            copyText.select();
-            navigator.clipboard.writeText(copyText.value);
-            alert("Referral Link Copied!");
-        }
-
-        function logout() {
-            localStorage.removeItem("current_logged_user");
-            location.reload();
-        }
-
-        /* ADMIN FUNCTIONS */
-        function showAdminLoginModal() {
-            document.getElementById("admin-modal").style.display = "flex";
-        }
-        function closeAdminModal() {
-            document.getElementById("admin-modal").style.display = "none";
-        }
-
-        function verifyAdmin() {
-            let u = document.getElementById("admin-user").value;
-            let p = document.getElementById("admin-pass").value;
-            if (u === "admin" && p === "admin123") {
-                closeAdminModal();
-                document.getElementById("auth-screen").style.display = "none";
-                document.getElementById("game-screen").style.display = "none";
-                document.getElementById("admin-screen").style.display = "block";
-                loadAdminUsers();
-            } else {
-                alert("Wrong Admin Details!");
-            }
-        }
-
-        function loadAdminUsers() {
-            let tbody = document.getElementById("admin-users-list");
-            tbody.innerHTML = "";
-            for (let uid in users) {
-                let row = `<tr>
-                    <td><b>${uid}</b></td>
-                    <td>${users[uid].password}</td>
-                    <td style="color:#22c55e; font-weight:bold;">₹${users[uid].balance.toFixed(2)}</td>
-                    <td><button class="edit-btn" onclick="changeBalance('${uid}')">Edit</button></td>
-                </tr>`;
-                tbody.innerHTML += row;
-            }
-        }
-
-        function changeBalance(uid) {
-            let newBal = prompt(`Enter new balance for ${uid}:`, users[uid].balance);
-            if (newBal !== null && !isNaN(newBal) && newBal.trim() !== "") {
-                users[uid].balance = parseFloat(newBal);
-                localStorage.setItem("game_users", JSON.stringify(users));
-                loadAdminUsers();
-                if(currentUser === uid) {
-                    document.getElementById("user-balance").innerText = users[uid].balance.toFixed(2);
-                }
-                alert("Balance Updated Successfully!");
-            }
-        }
-
-        function exitAdmin() {
-            if(currentUser) showGameScreen();
-            else {
-                document.getElementById("admin-screen").style.display = "none";
-                document.getElementById("auth-screen").style.display = "flex";
-            }
-        }
-
-        /* GAME LOOP */
-        setInterval(() => {
-            if (!currentUser) return;
-            timeLeft--;
-            let sec = timeLeft < 10 ? "0" + timeLeft : timeLeft;
-            document.getElementById("timer").innerText = "00:" + sec;
-
-            if (timeLeft === 0) {
-                generateResult();
-                timeLeft = 30;
-                periodNumber++;
-                localStorage.setItem("period_id", periodNumber);
-                document.getElementById("period-id").innerText = periodNumber;
-            }
-        }, 1000);
-
-        function openBetModal(selection) {
-            currentBet = selection;
-            document.getElementById("selected-selection").innerText = selection;
-            document.getElementById("bet-modal").style.display = "flex";
-        }
-        function closeModal(id) { document.getElementById(id).style.display = "none"; }
-        function setAmt(a) { selectedAmt = a; }
-
-        function confirmBet() {
-            if (users[currentUser].balance < selectedAmt) {
-                alert("Low Balance!");
-                closeModal('bet-modal');
-                return;
-            }
-            users[currentUser].balance -= selectedAmt;
-            localStorage.setItem("game_users", JSON.stringify(users));
-            document.getElementById("user-balance").innerText = users[currentUser].balance.toFixed(2);
-            alert(`Bet Placed: ₹${selectedAmt}`);
-            closeModal('bet-modal');
-        }
-
-        function generateResult() {
-            let winNum = Math.floor(Math.random() * 10);
-            let winCol = (winNum === 0) ? "Red + Violet" : (winN 
+</body>
+</html>
